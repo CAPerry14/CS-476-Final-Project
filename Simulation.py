@@ -79,5 +79,6 @@ clientApps.Stop(ns.core.Seconds(10.0))
 
     
 # Run the simulation
+ns.core.Simulator.Stop(ns.core.Seconds(11.0)) # Added simulation stop time
 ns.core.Simulator.Run()
 ns.core.Simulator.Destroy()
