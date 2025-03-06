@@ -14,6 +14,9 @@ yPositions = [0] * numVehicles
 cV2x = False
 
 
+ns.LogComponentEnable("UdpEchoClientApplication", ns.LOG_LEVEL_INFO)
+ns.LogComponentEnable("UdpEchoServerApplication", ns.LOG_LEVEL_INFO)
+
 #Setting up vehicles
 vehicles = ns.NodeContainer()
 vehicles.Create(numVehicles)
@@ -44,10 +47,10 @@ if cV2x:
 
 
 #Setting up mobility (positions and speeds of vehicles)
-mobility = ns.mobility.MobilityHelper()
-mobility.SetPositionAllocator("ns3::GridPositionAllocator", "MinX", ns.core.DoubleValue(0.0),
-                              "MinY", ns.core.DoubleValue (0.0), "DeltaX", ns.core.DoubleValue(defaultXSpeed), "DeltaY", ns.core.DoubleValue(defaultYSpeed),
-                              "GridWidth", ns.core.UintegerValue(gridWidth), "LayoutType", ns.core.StringValue("RowFirst"))
+mobility = ns.MobilityHelper()
+mobility.SetPositionAllocator("ns3::GridPositionAllocator", "MinX", ns.DoubleValue(0.0),
+                              "MinY", ns.DoubleValue (0.0), "DeltaX", ns.DoubleValue(defaultXSpeed), "DeltaY", ns.DoubleValue(defaultYSpeed),
+                              "GridWidth", ns.UintegerValue(gridWidth), "LayoutType", ns.StringValue("RowFirst"))
 mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel")
 mobility.Install(vehicles)
 
@@ -61,11 +64,11 @@ address.SetBase(ns.Ipv4Address("10.1.1.0"), ns.Ipv4Mask("255.255.255.0"))
 
 vehicleInterfaces = address.Assign(vehicleDevices)
 
-echoServer = ns.applications.UdpEchoServerHelper(9)
+echoServer = ns.UdpEchoServerHelper(9)
 
-serverApps = echoServer.Install(vehicles.Get(int(((numVehicles) / 2) - 1)))
-serverApps.Start(ns.core.Seconds(1.0))
-serverApps.Stop(ns.core.Seconds(10.0))
+serverApps = echoServer.Install(vehicles.Get(numVehicles - 1))
+serverApps.Start(ns.Seconds(1.0))
+serverApps.Stop(ns.Seconds(10.0))
 
 address = vehicleInterfaces.GetAddress(1).ConvertTo()
 echoClient = ns.UdpEchoClientHelper(address, 9)
@@ -79,6 +82,6 @@ clientApps.Stop(ns.Seconds(10))
 
     
 # Run the simulation
-ns.core.Simulator.Stop(ns.core.Seconds(11.0)) # Added simulation stop time
-ns.core.Simulator.Run()
-ns.core.Simulator.Destroy()
+ns.Simulator.Stop(ns.Seconds(11.0)) # Added simulation stop time
+ns.Simulator.Run()
+ns.Simulator.Destroy()
