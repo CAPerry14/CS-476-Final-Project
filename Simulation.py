@@ -33,7 +33,7 @@ if not cV2x:
     mac = ns.WifiMacHelper()
     ssid = ns.Ssid ("ns-3-ssid")
 
-    wifi = ns.wifi.WifiHelper()
+    wifi = ns.WifiHelper()
 
     mac.SetType ("ns3::StaWifiMac", "Ssid", ns.SsidValue(ssid), "ActiveProbing", ns.BooleanValue(False))
     vehicleDevices = wifi.Install(phy, mac, vehicles)
