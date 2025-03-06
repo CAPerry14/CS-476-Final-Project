@@ -5,8 +5,8 @@ import random
 
 #Parameters
 numVehicles = 2
-defaultXSpeed = 0.0
-defaultYSpeed = 0.0
+defaultXSpeed = 500.0
+defaultYSpeed = 1000.0
 gridWidth = 10000
 xPositions = [0] * numVehicles
 yPositions = [0] * numVehicles
@@ -45,7 +45,7 @@ if not cV2x:
 if cV2x:
     pointToPoint = ns.PointToPointHelper()
     pointToPoint.SetDeviceAttribute("DataRate", ns.StringValue("5Mbps"))
-    pointToPoint.SetChannelAttribute("Delay", ns.StringValue("2ms"))
+    pointToPoint.SetChannelAttribute("Delay", ns.StringValue("0ms"))
 
     vehicleDevices = pointToPoint.Install(vehicles)
 
@@ -55,7 +55,12 @@ mobility = ns.MobilityHelper()
 mobility.SetPositionAllocator("ns3::GridPositionAllocator", "MinX", ns.DoubleValue(0.0),
                               "MinY", ns.DoubleValue (0.0), "DeltaX", ns.DoubleValue(defaultXSpeed), "DeltaY", ns.DoubleValue(defaultYSpeed),
                               "GridWidth", ns.UintegerValue(gridWidth), "LayoutType", ns.StringValue("RowFirst"))
-mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel")
+#Vehicles randomly travel within these rectangle bounds
+mobility.SetMobilityModel(
+    "ns3::RandomWalk2dMobilityModel",
+    "Bounds",
+    ns.RectangleValue(ns.Rectangle(-5000, 5000, -5000, 5000)),
+)
 mobility.Install(vehicles)
 
 
@@ -74,10 +79,11 @@ serverApps = echoServer.Install(vehicles.Get(numVehicles - 1))
 serverApps.Start(ns.Seconds(1.0))
 serverApps.Stop(ns.Seconds(10.0))
 
+#You can movify 
 address = vehicleInterfaces.GetAddress(1).ConvertTo()
 echoClient = ns.UdpEchoClientHelper(address, 9)
-echoClient.SetAttribute("MaxPackets", ns.UintegerValue(1))
-echoClient.SetAttribute("Interval", ns.TimeValue(ns.Seconds(1)))
+echoClient.SetAttribute("MaxPackets", ns.UintegerValue(5))
+echoClient.SetAttribute("Interval", ns.TimeValue(ns.Seconds(0.001)))
 echoClient.SetAttribute("PacketSize", ns.UintegerValue(1024))
 
 clientApps = echoClient.Install(vehicles.Get(0))
