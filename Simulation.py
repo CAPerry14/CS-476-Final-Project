@@ -15,7 +15,7 @@ cV2x = False
 
 
 #Setting up vehicles
-vehicles = ns.network.NodeContainer()
+vehicles = ns.NodeContainer()
 vehicles.Create(numVehicles)
 
 
@@ -26,16 +26,16 @@ if not cV2x:
     # wifiStaNodes = ns.network.NodeContainer()
     # wifiStaNodes.Create(nWifi.value)
 
-    channel = ns.wifi.YansWifiChannelHelper.Default()
-    phy = ns.wifi.YansWifiPhyHelper()
+    channel = ns.YansWifiChannelHelper.Default()
+    phy = ns.YansWifiPhyHelper()
     phy.SetChannel(channel.Create())
 
-    mac = ns.wifi.WifiMacHelper()
-    ssid = ns.wifi.Ssid ("ns-3-ssid")
+    mac = ns.WifiMacHelper()
+    ssid = ns.Ssid ("ns-3-ssid")
 
     wifi = ns.wifi.WifiHelper()
 
-    mac.SetType ("ns3::StaWifiMac", "Ssid", ns.wifi.SsidValue(ssid), "ActiveProbing", ns.core.BooleanValue(False))
+    mac.SetType ("ns3::StaWifiMac", "Ssid", ns.SsidValue(ssid), "ActiveProbing", ns.BooleanValue(False))
     vehicleDevices = wifi.Install(phy, mac, vehicles)
 
 
@@ -52,12 +52,12 @@ mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel")
 mobility.Install(vehicles)
 
 
-stack = ns.internet.InternetStackHelper()
+stack = ns.InternetStackHelper()
 
 stack.Install(vehicles)
 
-address = ns.internet.Ipv4AddressHelper()
-address.SetBase(ns.network.Ipv4Address("10.1.1.0"), ns.network.Ipv4Mask("255.255.255.0"))
+address = ns.Ipv4AddressHelper()
+address.SetBase(ns.Ipv4Address("10.1.1.0"), ns.Ipv4Mask("255.255.255.0"))
 
 vehicleInterfaces = address.Assign(vehicleDevices)
 
@@ -67,15 +67,15 @@ serverApps = echoServer.Install(vehicles.Get(int(((numVehicles) / 2) - 1)))
 serverApps.Start(ns.core.Seconds(1.0))
 serverApps.Stop(ns.core.Seconds(10.0))
 
-address = ns.addressFromIpv4Address(vehicleInterfaces.GetAddress(1))
-echoClient = ns.applications.UdpEchoClientHelper(address, 9)
-echoClient.SetAttribute("MaxPackets", ns.core.UintegerValue(1))
-echoClient.SetAttribute("Interval", ns.core.TimeValue(ns.core.Seconds(1.0)))
-echoClient.SetAttribute("PacketSize", ns.core.UintegerValue(1024))
+address = vehicleInterfaces.GetAddress(1).ConvertTo()
+echoClient = ns.UdpEchoClientHelper(address, 9)
+echoClient.SetAttribute("MaxPackets", ns.UintegerValue(1))
+echoClient.SetAttribute("Interval", ns.TimeValue(ns.Seconds(1)))
+echoClient.SetAttribute("PacketSize", ns.UintegerValue(1024))
 
 clientApps = echoClient.Install(vehicles.Get(0))
-clientApps.Start(ns.core.Seconds(2.0))
-clientApps.Stop(ns.core.Seconds(10.0))
+clientApps.Start(ns.Seconds(2))
+clientApps.Stop(ns.Seconds(10))
 
     
 # Run the simulation
