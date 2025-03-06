@@ -7,11 +7,11 @@ import random
 numVehicles = 2
 defaultXSpeed = 0.0
 defaultYSpeed = 0.0
-gridWidth = 3
+gridWidth = 10000
 xPositions = [0] * numVehicles
 yPositions = [0] * numVehicles
 #Protocol, 0 is DSRC and 1 is C-V2X
-cV2x = False
+cV2x = True
 
 
 ns.LogComponentEnable("UdpEchoClientApplication", ns.LOG_LEVEL_INFO)
@@ -43,7 +43,11 @@ if not cV2x:
 
 
 if cV2x:
-    pass
+    pointToPoint = ns.PointToPointHelper()
+    pointToPoint.SetDeviceAttribute("DataRate", ns.StringValue("5Mbps"))
+    pointToPoint.SetChannelAttribute("Delay", ns.StringValue("2ms"))
+
+    vehicleDevices = pointToPoint.Install(vehicles)
 
 
 #Setting up mobility (positions and speeds of vehicles)
